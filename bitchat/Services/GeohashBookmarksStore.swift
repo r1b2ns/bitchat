@@ -23,7 +23,7 @@ final class GeohashBookmarksStore: ObservableObject {
 
     private let storage: KeyStorable
     
-    private init(storage: KeyStorable = UserDefaultsKeyStorable()) {
+    init(storage: KeyStorable = UserDefaultsKeyStorable()) {
         self.storage = storage
         load()
     }
@@ -67,7 +67,7 @@ final class GeohashBookmarksStore: ObservableObject {
 
     // MARK: - Persistence
     private func load() {
-        guard let data = storage.data(storeKey) else { return }
+        guard let data: Data = storage.get(key: storeKey) else { return }
         if let arr = try? JSONDecoder().decode([String].self, from: data) {
             // Sanitize, normalize, dedupe while preserving order (first occurrence wins)
             var seen = Set<String>()
@@ -84,7 +84,7 @@ final class GeohashBookmarksStore: ObservableObject {
             membership = seen
         }
         // Load any saved names
-        if let namesData = storage.data(namesStoreKey),
+        if let namesData: Data = storage.get(key: namesStoreKey),
            let dict = try? JSONDecoder().decode([String: String].self, from: namesData) {
             bookmarkNames = dict
         }
@@ -92,13 +92,13 @@ final class GeohashBookmarksStore: ObservableObject {
 
     private func persist() {
         if let data = try? JSONEncoder().encode(bookmarks) {
-            storage.save(data, key: storeKey)
+            storage.set(data, key: storeKey)
         }
     }
 
     private func persistNames() {
         if let data = try? JSONEncoder().encode(bookmarkNames) {
-            storage.save(data, key: namesStoreKey)
+            storage.set(data, key: namesStoreKey)
         }
     }
 

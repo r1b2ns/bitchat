@@ -8,10 +8,8 @@ import Foundation
 /// or any other type of key–value persistence.
 ///
 protocol KeyStorable {
-    func save(_ value: Any?, key: String)
-    func data(_ key: String) -> Data?
-    func object(_ key: String) -> Any?
-    func string(_ key: String) -> String?
+    func set(_ value: Any?, key: String)
+    func get<T>(key: String) -> T?
     func remove(_ key: String)
 }
 
@@ -23,28 +21,16 @@ final class UserDefaultsKeyStorable: KeyStorable {
     
     private let defaults: UserDefaults
     
-    init(group: String) {
-        self.defaults = UserDefaults(suiteName: group) ?? .standard
-    }
-    
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
     }
     
-    func save(_ value: Any?, key: String) {
+    func set(_ value: Any?, key: String) {
         defaults.set(value, forKey: key)
     }
     
-    func data(_ key: String) -> Data? {
-        defaults.data(forKey: key)
-    }
-    
-    func object(_ key: String) -> Any? {
-        defaults.object(forKey: key)
-    }
-    
-    func string(_ key: String) -> String? {
-        defaults.string(forKey: key)
+    func get<T>(key: String) -> T? {
+        defaults.object(forKey: key) as? T
     }
     
     func remove(_ key: String) {
